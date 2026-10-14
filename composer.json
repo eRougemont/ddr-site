@@ -1,0 +1,16 @@
+{
+    "name": "erougemont/site",
+    "description": "Site de l'oeuvre de Rougemont",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Frédéric Glorieux",
+            "email": "frederic.glorieux@fictif.org",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "oeuvres/teinte": "dev-main"
+    },
+    "minimum-stability": "dev"
+}
