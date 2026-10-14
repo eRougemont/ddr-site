@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+LGPL  http://www.gnu.org/licenses/lgpl.html
+© 2017 frederic.glorieux@fictif.org 
+Feuille de style pour équivalence entre HTML et TEI
+
+<class> : a mapping between a CSS class name and a TEI element name
+<id> : a mapping between an id name and a TEI element name
+@name  : normalized name ([a-z]+), no spaces, no numbers, no punctuation, no diacritics
+@tei  : optional name of output TEI element
+  — if @tei is absent, all html with this name are stripped
+  - if @tei="" no TEI element will be created but content is parsed
+  — if @tei="name", TEI element <name> to create
+@html : optional element name, <p name="date"/> ≠ <span name="date"/>
+@type : optional, value for a tei:el/@type attribute
+@rend : optional, value for a tei:el/@rend attribute
+-->
+<!DOCTYPE sheet [
+  <!ELEMENT sheet (style|id)+>
+  <!ATTLIST sheet xmlns CDATA #REQUIRED>
+  <!ELEMENT style EMPTY>
+  <!ATTLIST style
+    level (0|c|p) #REQUIRED 
+    name CDATA #REQUIRED
+    tei CDATA #IMPLIED
+    attribute CDATA #IMPLIED
+    value CDATA #IMPLIED
+   >
+  <!ELEMENT id EMPTY>
+  <!ATTLIST id
+    html CDATA #IMPLIED
+    name CDATA #REQUIRED
+    tei CDATA #IMPLIED
+    type CDATA #IMPLIED
+    rend CDATA #IMPLIED
+   >
+]>
+<sheet xmlns="https://oeuvres.github.io/teinte">
+  <!--
+  <id name="footer" html="div"/>
+  <id name="index" html="div"/>
+  <id name="jumptonav"/>
+  <id name="mwcontenttext" tei=""/>
+  <id name="sitenotice"/>
+  -->
+  <style level="c" name="abbr" tei="abbr"/>
+  <style level="c" name="accentuation" tei="emph"/>
+  <style level="c" name="acteur" tei="speaker"/>
+  <style level="c" name="affiliation" tei="affiliation"/>
+  <style level="c" name="age" tei="age"/>
+  <style level="c" name="annee" tei="date"/>
+  <style level="c" name="auteur" tei="byline"/>
+  <style level="c" name="author" tei="byline"/>
+  <style level="c" name="biblcar" tei="bibl"/>
+  <style level="c" name="bulletsymbols" tei="glyph"/>
+  <style level="c" name="c-stage" tei="stage"/>
+  <style level="c" name="camera" tei="camera"/>
+  <style level="c" name="corr" tei="corr"/>
+  <style level="c" name="date" tei="date"/>
+  <style level="c" name="distinct" tei="distinct"/>
+  <style level="c" name="italic" tei="hi"/>
+  <style level="c" name="italiquecar" tei="hi"/>
+  <style level="c" name="email" tei="email"/>
+  <style level="c" name="emphasis" tei="emph"/>
+  <style level="c" name="lieu" tei="placeName"/>
+  <style level="c" name="linenumbering" tei="num"/>
+  <style level="c" name="name" tei="name"/>
+  <style level="c" name="normal"/>
+  <style level="c" name="num" tei="num"/>
+  <style level="c" name="ocrx_word" tei=""/>
+  <style level="c" name="pagenum" tei="pb"/>
+  <style level="c" name="pagenum1" tei="pb"/>
+  <style level="c" name="pagenumber" tei="num"/>
+  <style level="c" name="pagination" tei="pb"/>
+  <style level="c" name="pb" tei="pb"/>
+  <style level="c" name="persname" tei="persName"/>
+  <style level="c" name="roman" tei="hi" attribute="rend" value="sc"/>
+  <style level="c" name="smcap" tei="hi" attribute="rend" value="sc"/>
+  <style level="c" name="smcap1" tei="hi" attribute="rend" value="sc"/>
+  
+  
+  
+  <style level="p" name="annee" tei="dateline"/>
+  <style level="p" name="bibl" tei="bibl"/>
+  <style level="p" name="biblio" tei="bibl"/>
+  <style level="p" name="bibliographie" tei="bibl"/>
+  <style level="p" name="bibliography" tei="bibl"/>
+  <style level="p" name="byline" tei="byline"/>
+  <style level="p" name="calibre1" tei="p"/>
+  <style level="p" name="calibre2" tei="p"/>
+  <style level="p" name="calibre3" tei="p"/>
+  <style level="p" name="calibre4" tei="p"/>
+  <style level="p" name="calibre5" tei="p"/>
+  <style level="p" name="calibre6" tei="p"/>
+  <style level="p" name="calibre7" tei="p"/>
+  <style level="p" name="calibre8" tei="p"/>
+  <style level="p" name="calibre9" tei="p"/>
+  <style level="p" name="calibre10" tei="p"/>
+  <style level="p" name="calibre11" tei="p"/>
+  <style level="p" name="chp" tei="p"/>
+  <style level="p" name="citation" tei="quote"/>
+  <style level="p" name="citation1" tei="quote"/>
+  <style level="p" name="citation2" tei="quote"/>
+  <style level="p" name="citationalinea" tei="quote"/>
+  <style level="p" name="citationenvers" tei="l"/>
+  <style level="p" name="closer" tei="closer"/>
+  <style level="p" name="corpsdetexte" tei="p"/>
+  <style level="p" name="creator" tei="byline"/>
+  <style level="p" name="date" tei="dateline"/>
+  <style level="p" name="dateline" tei="dateline"/>
+  <style level="p" name="dd" tei="item"/>
+  <style level="p" name="definition" tei="gloss"/>
+  <style level="p" name="desc" tei="desc"/>
+  <style level="p" name="docauthor" tei="docAuthor"/>
+  <style level="p" name="docdate" tei="docDate"/>
+  <style level="p" name="docimprint" tei="docImprint"/>
+  <style level="p" name="dt" tei="label"/>
+  <style level="p" name="endnote" tei="note"/>
+  <style level="p" name="entry" tei="entry"/>
+  <style level="p" name="epigraph" tei="epigraph"/>
+  <style level="p" name="exemple" tei="quote"/>
+  <style level="p" name="footnote" tei="note"/>
+  <style level="p" name="head" tei="head"/>
+  <style level="p" name="header" tei="head"/>
+  <style level="p" name="heading" tei="head"/>
+  <style level="p" name="lg" tei="lg"/>
+  <style level="p" name="line" tei="l"/>
+  <style level="p" name="listcontent" tei="item"/>
+  <style level="p" name="listcontents" tei="item"/>
+  <style level="p" name="listheading" tei="label"/>
+  <style level="p" name="normal" tei="p"/>
+  <style level="p" name="msonormal" tei="p"/>
+  <style level="p" name="niv1tit" tei="head"/>
+  <style level="p" name="niv1tit center" tei="head"/>
+  <style level="p" name="note" tei="note"/>
+  <style level="p" name="ocr_par" tei="p"/>
+  <style level="p" name="ocrx_line" tei="l"/>
+  <style level="p" name="opener" tei="opener"/>
+  <style level="p" name="p" tei="p"/>
+  <style level="p" name="pchapitre" tei="head"/>
+  <style level="p" name="poem" tei="div" attribute="type" value="poem"/>
+  <style level="p" name="poetry" tei="div" attribute="type" value="poem"/>
+  <style level="p" name="postscript" tei="postscript"/>
+  <style level="p" name="ptexte" tei="p"/>
+  <style level="p" name="ptextecourant" tei="p"/>
+  <style level="p" name="quotations" tei="quote"/>
+  <style level="p" name="quote" tei="quote"/>
+  <style level="p" name="resume" tei="argument"/>
+  <style level="p" name="salutation" tei="salute"/>
+  <style level="p" name="salute" tei="salute"/>
+  <style level="p" name="sender" tei="byline"/>
+  <style level="p" name="signature" tei="signed"/>
+  <style level="p" name="signed" tei="signed"/>
+  <style level="p" name="stanza" tei="lg"/>
+  <style level="p" name="strophe" tei="lg"/>
+  <style level="p" name="vers" tei="l"/>
+  <style level="p" name="versrompu" tei="l" attribute="type" value="part"/>
+</sheet>

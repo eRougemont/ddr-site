@@ -1,0 +1,73 @@
+search	replace	?comment
+# Variables		
+
+($inline)	(author|b|bg_\w+|emph|foreign|em|formula|hi|i|id|num|orth|overline|phr|ref|sc|seg|strong|sup|tech|term|th|title|u)	
+($atts)	( [^>]*)?	
+($pun)	([,;:\.!?—–  \s]+)	keep () or [] in inlines
+($block)	(head|note|p)	
+($parent)	(address|argument|castItem|castList|entryFree|epigraph|index|lg|notep|postscript|quote|set)	
+		
+# variables ends with the first replacement rule
+
+# Page breaks
+\[([pf]\.[  ][^<>\]]+)\]	<pb>\1</pb>	Page break with no style
+<pb>([  \n]*)</pb>	 	normalize space 
+</pb><pb>		broken pb
+<([a-z]+)>(<pb>[^<>]+</pb>)</\1>	\2	false para, doubles <pb> upper, inlines
+<([a-z]+)>(<pb>[^<>]+</pb>)</\1>	\2	…
+<([a-z]+)>(<pb>[^<>]+</pb>)</\1>	\2	…
+
+# SECTIONS
+
+(<pb>[^<]+</pb>)\s*((<\?div( /)?\?>\s*)+)	\2\n\1	first page break of a section
+<\?(div|list)\?>	<\1>	generated hierarchy
+<\?(div|list) /\?>	</\1>	generated hierarchy
+\n* *</($parent)>\s*<\1[^>]*> *\n*	\n\n
+
+(<head($atts)>)\s+	\1	trim spaces
+(<head($atts))>@	\1 type="chapter">	<head>@chapter
+
+-[\*]\n	-\n	odd chars from OCR
+
+
+
+<($inline)($atts)>(\s*)(<lb($atts)/>)(\s*)</\1>	\3\4\6	inline around line break
+</($inline)>( *)<\1($atts)>	\2	linked inline, block tags separed by \n
+</($inline)>( *)<\1($atts)>	\2	linked inline, 2
+</(hi|i)>([  ’\.!?']*)<\1($atts)>	\2	seen, roman pun among italic
+</(hi|i)>(\P{L}*)<\1($atts)>	\2	seen, roman letters among italic
+
+<($inline)($atts)>(\s+)	\3<\1\2>	spaces at start of inline, put before
+(\s+)</($inline)>	</\2>\1	spaces at end of inline, put after
+<($inline)($atts)>($pun)</\1>	\3	inline without word char
+# ([,: \s])(</($inline)>)	\2\1	soft pun at end,</inline> 
+<($inline)($atts)></\1>		empty inlines
+<($inline)($atts)/>		empty inlines
+
+
+(</id>)\s+	\1	<head><id>ID</id> Title</head>
+(<($block)($atts)>) +	\1	<block>   spaces at start of block
+<note($atts)>(\s*<p>)?\s*[\[\(]?(nde|NdE)[\]\)\. ] *	"<note\1 resp=""editor"">\2"	note, editor
+<note($atts)>(\s*<p>)?\s*[\[\(]?(nda|NdA)[\]\)\. ] *	"<note\1 resp=""author"">\2"	note, author
+\s*<p>\s*(<pb($atts)/>)\s*</p>\s*	\n\1\n	<p> with only on <pb/>
+\s*(<pb($atts)/>)\s*(</($block)>)	\n\3\n\1	ending <pb/> out of blocks
+\s+([;:?!])	 \1	unbreakable space before caesura resolution
+[——\-]\s*(<lb($atts)/>)\s*([^ <>]+) *	\3\n\1	caesura, /\s/u will match nbsp
+(\s*)(<lb($atts)/>)(</($inline)>)([^ \p{L}<>]*) *	\4\6\1\2	<lb/></hi>.
+\s+(</(head|p)>)	\1	<block>   spaces at end of block
+
+
+-*[—–]+-*	—
+‹[\-–—]	←
+[\-–—]›	→
+\.\.\.	…
+\s*([»])	 $1
+\s+([:;?!])	 $1	caution w:doc, http://, &gt;, <?pi ?>
+([«§])\s*	$1 	caution (1880—1951)
+'	’	fr
+(’)[  ]+([«\[])	$1$2
+([^\p{L}]p\.)\s*	$1 	p. ###
+(etc\.)(;)	$1 $2
+# maths
+(\) *)(</hi>)	$2$1
+(<hi>)(\( *)	$2$1
