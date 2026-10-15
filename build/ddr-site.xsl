@@ -92,6 +92,14 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
     <!--There are chapters -->
     <xsl:choose>
       <xsl:when test=".//tei:div[key('split', generate-id())]">
+      <xsl:variable name="href">
+        <xsl:value-of select="$dstDir"/>
+        <xsl:value-of select="$docid"/>
+        <xsl:text>.html</xsl:text>
+      </xsl:variable>
+      <exsl:document href="{$href}" omit-xml-declaration="yes" encoding="UTF-8" indent="yes">
+        <xsl:call-template name="toc"/>
+      </exsl:document>
         <!-- No book cover for now
         <xsl:call-template name="book"/>
         -->
@@ -141,7 +149,8 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
           tei:back | tei:body | tei:front
         | tei:group|tei:div|tei:div0|tei:div1|tei:div2|tei:div3|tei:div4|tei:div5|tei:div6)"/>
         <xsl:variable name="blocks" select="tei:*[following-sibling::*[generate-id(.)=$before]]"/>
-        <xsl:if test="$blocks[local-name()!='head' and local-name()!='pb' and local-name()!='index']">
+        <!-- Some short parts with just an epigraph are not splitted -->
+        <xsl:if test="@xml:id and $blocks[local-name()!='head' and local-name()!='pb' and local-name()!='index']">
           <xsl:call-template name="chapter"/>
         </xsl:if>
         <xsl:apply-templates select="
@@ -328,6 +337,8 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
   <xsl:template match="tei:div/tei:note[@type = 'bibl']">
     <!-- metadata, no output -->
   </xsl:template>
+  
+
 
   <xsl:template name="book">
     <xsl:variable name="biblStruct"
@@ -480,131 +491,125 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
         </head>
         <body>
           <xsl:variable name="class" select="normalize-space(concat('chapter ', $status))"/>
-          <article class="{$class}">
-            <xsl:variable name="class2" select="normalize-space(concat('chapter-flow ', $status))"/>
-            
-            <xsl:comment>teinte:flow-start</xsl:comment>
-            <div class="{$class2}" data-slug="{$id}" data-year="{$year}" data-byline="{$byline}">
-              <!-- Get last pb ? -->
-              <xsl:variable name="lastpb">
-                <xsl:if test="preceding-sibling::*[1][self::tei:pb]">
-                  <xsl:apply-templates select="preceding-sibling::*[1]"/>
-                </xsl:if>
-              </xsl:variable>
-              <xsl:variable name="first-non-header" select="
-                (tei:*[not(self::tei:argument)]
-                [not(self::tei:byline)]
-                [not(self::tei:cb)]
-                [not(self::tei:dateline)]
-                [not(self::tei:docAuthor)]
-                [not(self::tei:docDate)]
-                [not(self::tei:epigraph)]
-                [not(self::tei:head)]
-                [not(self::tei:index)]
-                [not(self::tei:opener)]
-                [not(self::tei:pb)]
-                [not(self::tei:salute)]
-                [not(self::tei:signed)])[1]
-                "/>
-              <header class="chapter-header">
-                <xsl:for-each select="tei:note[@type = 'bibl']/tei:bibl[@type = 'title']">
-                  <div class="running-title print-only">
-                    <xsl:apply-templates/>
-                  </div>
-                </xsl:for-each>
-                <!-- for print, url -->
-                 <div class="url print-only"><a href="{$url}"><xsl:value-of select="$url"/></a></div>
-                <div class="booktitle">
-                  <xsl:apply-templates select="tei:note[@type = 'bibl']/tei:biblStruct" mode="byline"/>
-                  <xsl:text> </xsl:text>
-                  <xsl:apply-templates select="tei:note[@type = 'bibl']/tei:biblStruct" mode="year"/>
-                  <xsl:text> </xsl:text>
-                  <em class="title">
-                    <xsl:copy-of select="$booktitle"/>
-                  </em>
+          <article class="{$class}" data-slug="{$id}" data-year="{$year}" data-byline="{$byline}">
+            <!-- Get last pb ? -->
+            <xsl:variable name="lastpb">
+              <xsl:if test="preceding-sibling::*[1][self::tei:pb]">
+                <xsl:apply-templates select="preceding-sibling::*[1]"/>
+              </xsl:if>
+            </xsl:variable>
+            <xsl:variable name="first-non-header" select="
+              (tei:*[not(self::tei:argument)]
+              [not(self::tei:byline)]
+              [not(self::tei:cb)]
+              [not(self::tei:dateline)]
+              [not(self::tei:docAuthor)]
+              [not(self::tei:docDate)]
+              [not(self::tei:epigraph)]
+              [not(self::tei:head)]
+              [not(self::tei:index)]
+              [not(self::tei:opener)]
+              [not(self::tei:pb)]
+              [not(self::tei:salute)]
+              [not(self::tei:signed)])[1]
+              "/>
+            <header class="chapter-header">
+              <xsl:for-each select="tei:note[@type = 'bibl']/tei:bibl[@type = 'title']">
+                <div class="running-title print-only">
+                  <xsl:apply-templates/>
                 </div>
-                <xsl:apply-templates select="$first-non-header/preceding-sibling::node()">
-                  <xsl:with-param name="level" select="1"/>
-                </xsl:apply-templates>
-              </header>
+              </xsl:for-each>
+              <!-- for print, url -->
+               <div class="url print-only"><a href="{$url}"><xsl:value-of select="$url"/></a></div>
+              <div class="booktitle">
+                <xsl:apply-templates select="tei:note[@type = 'bibl']/tei:biblStruct" mode="byline"/>
+                <xsl:text> </xsl:text>
+                <xsl:apply-templates select="tei:note[@type = 'bibl']/tei:biblStruct" mode="year"/>
+                <xsl:text> </xsl:text>
+                <em class="title">
+                  <xsl:copy-of select="$booktitle"/>
+                </em>
+              </div>
+              <xsl:apply-templates select="$first-non-header/preceding-sibling::node()">
+                <xsl:with-param name="level" select="1"/>
+              </xsl:apply-templates>
+            </header>
 
-              <xsl:choose>
-                <!-- part with chapters -->
-                <xsl:when test="descendant::*[key('split', generate-id())]">
-                  <!-- take content before sections -->
-                  <xsl:variable name="first-div" select="(
-                      tei:back
-                    | tei:body
-                    | tei:front
-                    | tei:group
-                    | tei:div
-                    | tei:div0
-                    | tei:div1
-                    | tei:div2
-                    | tei:div3
-                    | tei:div4
-                    | tei:div5
-                    | tei:div6
-                    )[1]"/>
-                  <div>
-                    <xsl:attribute name="class">
-                      <xsl:text>col2</xsl:text>
-                      <xsl:if test="$closed-access"> rights</xsl:if>
-                    </xsl:attribute>
-                    <xsl:variable name="before" select="$first-div/preceding-sibling::node()"/>
-                    <div class="body">
-                      <xsl:value-of select="$lf"/>
-                      <xsl:apply-templates select="$first-non-header | $first-non-header/following-sibling::node()[count(. | $before) = count($before)]">
-                        <xsl:with-param name="level" select="1"/>
-                      </xsl:apply-templates>
-                    </div>
-                    <xsl:call-template name="footnotes">
-                      <xsl:with-param name="tei" select="$first-div/preceding-sibling::node()"/>
-                    </xsl:call-template>
+            <xsl:choose>
+              <!-- part with chapters -->
+              <xsl:when test="descendant::*[key('split', generate-id())]">
+                <!-- take content before sections -->
+                <xsl:variable name="first-div" select="(
+                    tei:back
+                  | tei:body
+                  | tei:front
+                  | tei:group
+                  | tei:div
+                  | tei:div0
+                  | tei:div1
+                  | tei:div2
+                  | tei:div3
+                  | tei:div4
+                  | tei:div5
+                  | tei:div6
+                  )[1]"/>
+                <div>
+                  <xsl:attribute name="class">
+                    <xsl:text>col2</xsl:text>
+                    <xsl:if test="$closed-access"> rights</xsl:if>
+                  </xsl:attribute>
+                  <xsl:variable name="before" select="$first-div/preceding-sibling::node()"/>
+                  <div class="body">
+                    <xsl:value-of select="$lf"/>
+                    <xsl:apply-templates select="$first-non-header | $first-non-header/following-sibling::node()[count(. | $before) = count($before)]">
+                      <xsl:with-param name="level" select="1"/>
+                    </xsl:apply-templates>
                   </div>
-                  <!-- Chapters -->
-                  <nav class="toc-sub chapters">
-                    <ol class="tree">
-                      <xsl:for-each select="tei:div">
-                        <li class="toc-item">
-                          <xsl:call-template name="a"/>
-                        </li>
-                      </xsl:for-each>
-                    </ol>
-                  </nav>
-                </xsl:when>
-                <xsl:otherwise>
-                  <div>
-                    <xsl:attribute name="class">
-                      <xsl:text>col2</xsl:text>
-                      <xsl:if test="$closed-access"> rights</xsl:if>
-                    </xsl:attribute>
-                    
-                    <!-- For print, local toc -->
-                    <xsl:variable name="html">
-                      <xsl:apply-templates select="tei:div" mode="li"/>
-                    </xsl:variable>
-                    <xsl:if test="$html != ''">
-                      <nav class="toc-sub sections print-only">
-                        <ol class="tree">
-                          <xsl:copy-of select="$html"/>
-                        </ol>
-                      </nav>
-                    </xsl:if>
-                    <div class="body">
-                      <xsl:apply-templates
-                        select="$first-non-header | $first-non-header/following-sibling::node()">
-                        <xsl:with-param name="level" select="1"/>
-                      </xsl:apply-templates>
-                    </div>
-                    <xsl:call-template name="footnotes"/>
+                  <xsl:call-template name="footnotes">
+                    <xsl:with-param name="tei" select="$first-div/preceding-sibling::node()"/>
+                  </xsl:call-template>
+                </div>
+                <!-- Chapters -->
+                <nav class="toc-sub chapters">
+                  <ol class="tree">
+                    <xsl:for-each select="tei:div">
+                      <li class="toc-item">
+                        <xsl:call-template name="a"/>
+                      </li>
+                    </xsl:for-each>
+                  </ol>
+                </nav>
+              </xsl:when>
+              <xsl:otherwise>
+                <div>
+                  <xsl:attribute name="class">
+                    <xsl:text>col2</xsl:text>
+                    <xsl:if test="$closed-access"> rights</xsl:if>
+                  </xsl:attribute>
+                  
+                  <!-- For print, local toc -->
+                  <xsl:variable name="html">
+                    <xsl:apply-templates select="tei:div" mode="li"/>
+                  </xsl:variable>
+                  <xsl:if test="$html != ''">
+                    <nav class="toc-sub sections print-only">
+                      <ol class="tree">
+                        <xsl:copy-of select="$html"/>
+                      </ol>
+                    </nav>
+                  </xsl:if>
+                  <div class="body">
+                    <xsl:apply-templates
+                      select="$first-non-header | $first-non-header/following-sibling::node()">
+                      <xsl:with-param name="level" select="1"/>
+                    </xsl:apply-templates>
                   </div>
-                </xsl:otherwise>
-              </xsl:choose>
-            </div>
-            <xsl:comment>teinte:flow-end</xsl:comment>
+                  <xsl:call-template name="footnotes"/>
+                </div>
+              </xsl:otherwise>
+            </xsl:choose>
             
-            
+            <!-- No more local toc
             <aside class="chapter-toc" aria-label="Sommaire">
               <xsl:comment>teinte:toc-start</xsl:comment>
               <xsl:variable name="toc">
@@ -622,6 +627,7 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
               </xsl:choose>
               <xsl:comment>teinte:toc-end</xsl:comment>
             </aside>
+            -->
           </article>
         </body>
       </html>

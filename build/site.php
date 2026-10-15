@@ -18,8 +18,8 @@ class Tei_site extends Cliglob {
         Log::setLogger(new LoggerCli(LogLevel::DEBUG));
         self::$globs = [
             $home . "/../ddr-livres/*.xml",
-            // $home . "/../ddr-articles/*.xml",
-            // $home . "/../ddr-inedits/*.xml",
+            $home . "/../ddr-articles/*.xml",
+            $home . "/../ddr-inedits/*.xml",
         ];
         self::args();
         self::$tei = new Tei();
