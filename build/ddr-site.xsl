@@ -64,9 +64,19 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
   <xsl:param name="docid"/>
   <!-- Required, folder where to project the generated files -->
   <xsl:param name="dstDir">html/</xsl:param>
-  <xsl:variable name="published" select="substring(/*/@xml:id, 4, 4)"/>
-  <xsl:variable name="booktitle">
+  <xsl:variable name="issued">
+    <xsl:variable name="date" select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:biblStruct/tei:monogr/tei:imprint/tei:date"/>
     <xsl:choose>
+      <xsl:when test="$date/@when">
+        <xsl:value-of select="$date/@when"/>
+      </xsl:when>
+      <xsl:when test="$date != ''">
+        <xsl:value-of select="$date"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="booktitle">
+  <xsl:choose>
       <xsl:when test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:biblStruct/tei:monogr/tei:title">
         <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:biblStruct/tei:monogr/tei:title"/>
       </xsl:when>
@@ -453,7 +463,14 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
       </xsl:if>
     </xsl:variable>
     <xsl:variable name="year">
-      
+      <xsl:choose>
+        <xsl:when test="@when">
+          <xsl:value-of select="substring(@when, 1, 4)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="substring($docdate, 1, 4)"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
     
     <xsl:variable name="html">
@@ -769,7 +786,7 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
           <xsl:value-of select="substring(@when, 1, 4)"/>
         </xsl:when>
         <xsl:otherwise>          
-          <xsl:value-of select="substring($published, 1, 4)"/>
+          <xsl:value-of select="substring($issued, 1, 4)"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:param>
@@ -797,7 +814,7 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
         <xsl:when test="$type = 'chapter'">
           <xsl:value-of select="$byline"/>
           <xsl:text> (</xsl:text>
-          <xsl:value-of select="substring($published, 1, 4)"/>
+          <xsl:value-of select="$year"/>
           <xsl:text>) </xsl:text>
           <xsl:call-template name="title"/>
           <xsl:text> — </xsl:text>
@@ -806,7 +823,7 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
         <xsl:when test="$type = 'article'">
           <xsl:value-of select="$byline"/>
           <xsl:text> (</xsl:text>
-          <xsl:value-of select="substring($published, 1, 4)"/>
+          <xsl:value-of select="$year"/>
           <xsl:text>) </xsl:text>
           <xsl:choose>
             <xsl:when test="tei:head/tei:note[@type='bibl']//tei:ref">
@@ -821,7 +838,7 @@ tei:*[self::tei:div or self::tei:div1 or self::tei:div2][normalize-space(.) != '
         <xsl:otherwise>
           <xsl:value-of select="$byline"/>
           <xsl:text> (</xsl:text>
-          <xsl:value-of select="substring($published, 1, 4)"/>
+          <xsl:value-of select="substring($issued, 1, 4)"/>
           <xsl:text>) </xsl:text>
         </xsl:otherwise>
       </xsl:choose>
