@@ -100,7 +100,6 @@ function pairUrl(array $pair): string {
         <h2><?=h($doc['meta']['title'])?></h2>
         <p><?=h($doc['meta']['work'])?></p>
         <div class="doc-meta"><span><?=h(documentDate($doc['meta']))?></span><small><?=h($doc['meta']['identifier'])?></small></div>
-        <?php if ($doc['publicUrl']): ?><a class="public-link" href="<?=h($doc['publicUrl'])?>" target="_blank" rel="noopener noreferrer">Texte publié ↗</a><?php endif; ?>
       </div>
       <div class="reading" id="reading-<?=$i?>"><div class="prose"><?=$doc['html']?></div></div>
     </section>
