@@ -1,5 +1,9 @@
 <?php
+// PHP Version 7.4.33
 declare(strict_types=1);
+ini_set('display_startup_errors', 1);
+ini_set('display_errors', 1);
+error_reporting(-1);
 
 require __DIR__ . '/lib.php';
 
