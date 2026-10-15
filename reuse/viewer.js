@@ -2,6 +2,16 @@
 const search = document.querySelector('#search');
 const slider = document.querySelector('#threshold');
 const list = [...document.querySelectorAll('.pair')];
+const pairList = document.querySelector('#pair-list');
+const stateKey = `pair-list:${location.pathname}`;
+let savedState = null;
+try {
+  savedState = JSON.parse(sessionStorage.getItem(stateKey));
+} catch (_) {}
+if (savedState?.url === location.href) {
+  search.value = savedState.search;
+  slider.value = savedState.threshold;
+}
 const normalise = text => text.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function filterPairs() {
   const term = normalise(search.value.trim());
@@ -19,6 +29,26 @@ if (search && slider) {
   search.addEventListener('input', filterPairs);
   slider.addEventListener('input', filterPairs);
   filterPairs();
+}
+if (pairList) {
+  pairList.addEventListener('click', event => {
+    const pair = event.target.closest('a.pair');
+    if (!pair) return;
+    try {
+      sessionStorage.setItem(stateKey, JSON.stringify({
+        url: pair.href,
+        scrollTop: pairList.scrollTop,
+        search: search.value,
+        threshold: slider.value
+      }));
+    } catch (_) {}
+  });
+  if (savedState?.url === location.href) {
+    requestAnimationFrame(() => {
+      pairList.scrollTop = savedState.scrollTop;
+      pairList.querySelector('.pair.active')?.focus({preventScroll: true});
+    });
+  }
 }
 const readings = [...document.querySelectorAll('.reading')];
 const marks = readings.flatMap((reading, pane) => [...reading.querySelectorAll('mark.diff')].map(node => ({node, pane})));
