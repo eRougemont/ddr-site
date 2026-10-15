@@ -1,9 +1,5 @@
 <?php
-// PHP Version 7.4.33
 declare(strict_types=1);
-ini_set('display_startup_errors', 1);
-ini_set('display_errors', 1);
-error_reporting(-1);
 
 require __DIR__ . '/lib.php';
 
@@ -83,7 +79,7 @@ function pairUrl(array $pair): string {
 </aside>
 <main class="main">
 <?php if ($error): ?>
-  <div class="error"><strong>Comparaison indisponible.</strong> <?=h($error)?><p>Les fichiers HTML manquants peuvent être ajoutés dans le dossier <code>html/</code>.</p></div>
+  <div class="error"><strong>Comparaison indisponible.</strong> <?=h($error)?><p>Vérifiez le dossier défini par <code>HTML_DIR</code> au début de <code>lib.php</code>.</p></div>
 <?php elseif (!$chosen): ?>
   <p>Aucune paire disponible.</p>
 <?php else: ?>
@@ -104,6 +100,7 @@ function pairUrl(array $pair): string {
         <h2><?=h($doc['meta']['title'])?></h2>
         <p><?=h($doc['meta']['work'])?></p>
         <div class="doc-meta"><span><?=h(documentDate($doc['meta']))?></span><small><?=h($doc['meta']['identifier'])?></small></div>
+        <?php if ($doc['publicUrl']): ?><a class="public-link" href="<?=h($doc['publicUrl'])?>" target="_blank" rel="noopener noreferrer">Texte publié ↗</a><?php endif; ?>
       </div>
       <div class="reading" id="reading-<?=$i?>"><div class="prose"><?=$doc['html']?></div></div>
     </section>

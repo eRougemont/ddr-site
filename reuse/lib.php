@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-define("DOCS", __DIR__ . "/../ddr/");
+// Dossier des fichiers HTML : modifier uniquement cette ligne.
+define('HTML_DIR', __DIR__ . '/../ddr');
 
 function h(string $value): string { return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 function mbLower(string $value): string { return function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value); }
@@ -48,8 +49,8 @@ function dateInterval(string $date): ?array {
 function readArticle(array $meta): array {
     $id = $meta['identifier'];
     if (!preg_match('/^[a-zA-Z0-9_-]+$/', $id)) { throw new RuntimeException('Identifiant de document invalide'); }
-    $file = DOCS . $id . '.html';
-    if (!is_file($file)) { throw new RuntimeException("HTML absent : $file"); }
+    $file = rtrim(HTML_DIR, '/\\') . DIRECTORY_SEPARATOR . $id . '.html';
+    if (!is_file($file)) { throw new RuntimeException("HTML absent : $id.html"); }
     if (!class_exists('DOMDocument')) { throw new RuntimeException('Extension PHP DOM/XML requise'); }
     $dom = new DOMDocument();
     $old = libxml_use_internal_errors(true);
@@ -62,7 +63,9 @@ function readArticle(array $meta): array {
     if (!$body) { throw new RuntimeException("Corps .body absent : $id.html"); }
     // Footnote callouts and pagination markers are not part of the word comparison.
     foreach (iterator_to_array($xpath->query('.//*[contains(concat(" ",normalize-space(@class)," ")," noteref ") or contains(concat(" ",normalize-space(@class)," ")," pb ") or contains(concat(" ",normalize-space(@class)," ")," bookmark ")]', $body)) as $node) {
-        $node->parentNode?->removeChild($node);
+        if ($node->parentNode !== null) {
+            $node->parentNode->removeChild($node);
+        }
     }
     $tokens = []; $nodes = [];
     $walk = function (DOMNode $node) use (&$walk, &$tokens, &$nodes): void {
@@ -83,7 +86,7 @@ function readArticle(array $meta): array {
     $publicUrl = '';
     foreach ($xpath->query('//*[local-name()="meta" and @name="citation_fulltext_html_url"]') as $tag) {
         $url = $tag->getAttribute('content');
-        if (filter_var($url, FILTER_VALIDATE_URL) && str_starts_with($url, 'https://')) { $publicUrl = $url; }
+        if (filter_var($url, FILTER_VALIDATE_URL) && strpos($url, 'https://') === 0) { $publicUrl = $url; }
         break;
     }
     return compact('meta','dom','body','tokens','nodes','publicUrl');
@@ -176,13 +179,15 @@ function renderBody(array $article, array $changed, string $prefix): string {
             $fragment->appendChild($mark); $pos=$end;
         }
         if ($pos<strlen($value)) { $fragment->appendChild($article['dom']->createTextNode(substr($value,$pos))); }
-        $node->parentNode?->replaceChild($fragment,$node);
+        if ($node->parentNode !== null) {
+            $node->parentNode->replaceChild($fragment,$node);
+        }
     }
     // Prefix any remaining local fragment identifiers to avoid collisions between panes.
     $xpath=new DOMXPath($article['dom']);
     foreach ($xpath->query('.//*[@id or @href]', $body) as $element) {
         if ($element->hasAttribute('id')) { $element->setAttribute('id',$prefix.'-'.$element->getAttribute('id')); }
-        if ($element->hasAttribute('href') && str_starts_with($element->getAttribute('href'),'#')) {
+        if ($element->hasAttribute('href') && strpos($element->getAttribute('href'), '#') === 0) {
             $element->setAttribute('href','#'.$prefix.'-'.substr($element->getAttribute('href'),1));
         }
     }
